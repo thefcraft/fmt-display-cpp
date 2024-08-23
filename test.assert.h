@@ -11,7 +11,7 @@
         static int test_name_count_old = 0;
         static int test_name_count = 0;
         template <typename T, typename U>
-        void assert_eq(T &x, U &y, std::string x_name, std::string y_name){
+        void assert_eq(T x, U y, std::string x_name, std::string y_name){
             int i = test::test_idx++;
             if (test_name_count == test_name_count_old){
                 test_name = fmt::sprint("test case ", i);
