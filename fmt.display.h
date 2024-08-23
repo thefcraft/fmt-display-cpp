@@ -1,9 +1,32 @@
 #ifndef FMT_DISPLAY_H
 #define FMT_DISPLAY_H
     #include <sstream>  // For std::ostringstream
-    #include <vector>
+    #include <vector> // for vector printing
+
+    namespace ansi {
+        constexpr auto reset = "\033[0m";
+        constexpr auto bold = "\033[1m";
+        constexpr auto underline = "\033[4m";
+
+        constexpr auto black = "\033[30m";
+        constexpr auto red = "\033[31m";
+        constexpr auto green = "\033[32m";
+        constexpr auto yellow = "\033[33m";
+        constexpr auto blue = "\033[34m";
+        constexpr auto magenta = "\033[35m";
+        constexpr auto cyan = "\033[36m";
+        constexpr auto white = "\033[37m";
+
+        constexpr auto bg_black = "\033[40m";
+        constexpr auto bg_red = "\033[41m";
+        constexpr auto bg_green = "\033[42m";
+        constexpr auto bg_yellow = "\033[43m";
+        constexpr auto bg_blue = "\033[44m";
+        constexpr auto bg_magenta = "\033[45m";
+        constexpr auto bg_cyan = "\033[46m";
+        constexpr auto bg_white = "\033[47m";
+    }   
     namespace fmt {
-        
         template<typename T>
         struct Display {
             void print(const T &data){
@@ -21,6 +44,12 @@
             public:
                 static constexpr bool value = decltype(test<T>(0))::value;
         };
+        // Helper trait to check if a type has an operator<< for std::ostream
+        template<typename T, typename = void>
+        struct is_printable : std::false_type {};
+        template<typename T>
+        struct is_printable<T, std::void_t<decltype(std::cout << std::declval<T>())>> : std::true_type {};
+
         // Helper trait to check if a type should be printed
         template<typename T>
         struct ShouldPrint {
@@ -32,7 +61,11 @@
             if constexpr (ShouldPrint<T>::value) {
                 std::cout << Display<T>::print(arg);
             }else if constexpr (!ShouldPrint<T>::value){
-                std::cout << arg;
+                if constexpr (is_printable<T>::value) {
+                    std::cout << arg;
+                } else {
+                    std::cout << ansi::red << "fmt::Display is not implemented yet" << ansi::reset; // Yellow warning message
+                }
             }
         }
         template<typename... Args>
@@ -51,7 +84,11 @@
             if constexpr (ShouldPrint<T>::value) {
                 oss << Display<T>::print(arg);
             }else if constexpr (!ShouldPrint<T>::value){
-                oss << arg;
+                if constexpr (is_printable<T>::value) {
+                    oss << arg;
+                } else {
+                    oss << ansi::red << "fmt::Display is not implemented yet" << ansi::reset; // Yellow warning message
+                }
             }
         }
         class fmtout{
