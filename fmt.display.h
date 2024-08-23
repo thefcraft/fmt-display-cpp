@@ -217,21 +217,23 @@
             return out.str();
         }
     };
-    #include <optional>
-    template<typename T>
-    struct fmt::Display<std::optional<T>> {
-        static std::string print(const std::optional<T>& opt) {
-            if (opt) return sprint("Some(", *opt, ")");
-            else return "None";
-        }
-    };
-    #include <variant>
-    template<typename... Types>
-    struct fmt::Display<std::variant<Types...>> {
-        static std::string print(const std::variant<Types...>& var) {
-            return std::visit([](const auto& value) {
-                return sprint("Variant(", value, ")");
-            }, var);
-        }
-    };
+    #if __cplusplus >= 201703L // C++17 or newer
+        #include <optional>
+        template<typename T>
+        struct fmt::Display<std::optional<T>> {
+            static std::string print(const std::optional<T>& opt) {
+                if (opt) return sprint("Some(", *opt, ")");
+                else return "None";
+            }
+        };
+        #include <variant>
+        template<typename... Types>
+        struct fmt::Display<std::variant<Types...>> {
+            static std::string print(const std::variant<Types...>& var) {
+                return std::visit([](const auto& value) {
+                    return sprint("Variant(", value, ")");
+                }, var);
+            }
+        };
+    #endif // __cplusplus >= 201703L
 #endif 
