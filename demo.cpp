@@ -2,6 +2,7 @@
 #include "fmt.display.h"
 #include <vector>
 using namespace std;
+// using namespace fmt;
 class Point{
     public:
         int x, y;
@@ -13,7 +14,7 @@ struct fmt::Display<Point> {
         return fmt::sprint('(', data.x, ',', data.y, ')');
     }
 };
-using namespace std;
+
 class Complex{
     public:
         float r, i;
