@@ -168,6 +168,14 @@
         }
     };
 
+    template<>
+    struct fmt::Display<bool> {
+        static std::string print(const bool &data) {
+            if (data) return "True";
+            else return "False";
+        }
+    };
+
     // Display specializations for standard containers
     #include <vector> // for vector printing
     template<typename T>
