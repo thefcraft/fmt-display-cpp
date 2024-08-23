@@ -1,3 +1,4 @@
+// fmt::display.h
 #ifndef FMT_DISPLAY_H
 #define FMT_DISPLAY_H
     #include <sstream>  // For std::ostringstream

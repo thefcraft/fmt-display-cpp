@@ -1,29 +1,31 @@
-# fmt::display - A Flexible C++ Formatting Library
+# fmt::display - A Flexible C++ Formatting and Testing Library
 
-`fmt::display` is a header-only C++ library that provides a flexible and extensible way to format and display various data types. Inspired by Rust's `Display` trait, this library allows for easy customization of how objects are printed and provides a consistent interface for outputting different types of data.
+`fmt::display` is a header-only C++ library that provides a flexible and extensible way to format and display various data types. Additionally, the library now includes a simple testing framework (`test::assert.h`) that allows for easy creation and execution of unit tests within your C++ project.
 
 ## Features
 
-- Custom display implementations for user-defined types
-- ANSI color support for terminal output
-- Built-in support for standard containers (vector, map, set)
-- Support for C++17 features like `std::optional` and `std::variant`
-- Compile-time type checking for printable types
-- String-building capabilities with `fmtout` class
-- Variadic template functions for flexible printing
+- **Custom display implementations** for user-defined types.
+- **ANSI color support** for terminal output.
+- **Built-in support for standard containers** like `vector`, `map`, and `set`.
+- **Support for C++17 features** like `std::optional` and `std::variant`.
+- **Simple testing framework** for creating and running unit tests.
+- **Compile-time type checking** for printable types.
+- **String-building capabilities** with the `fmtout` class.
+- **Variadic template functions** for flexible printing.
 
 ## Requirements
 
-- C++11 compatible compiler
-- Header-only library (no compilation needed)
+- C++11 compatible compiler.
+- Header-only library (no compilation needed).
 
 ## Installation
 
-1. Clone this repository or download the `fmt.display.h` file.
-2. Include the header in your C++ project:
+1. Clone this repository or download the `fmt.display.h` and `test.assert.h` files.
+2. Include the headers in your C++ project:
 
 ```cpp
 #include "fmt.display.h"
+#include "test.assert.h"
 ```
 
 ## Usage
@@ -167,6 +169,46 @@ Variant with float: Variant(3.14)
 Variant with string: Variant(Hello)
 ```
 
+### Testing Framework
+
+The `test::assert.h` file adds a simple and intuitive way to write unit tests for your C++ code. It includes assertion functions and a testing runner.
+
+#### Writing Tests
+
+```cpp
+#include "test.assert.h"
+
+int main() {
+    RUN_TESTS;
+    return 0;
+}
+
+MAKE_TESTS{
+    It(divide by zero){
+        asserteq(1 / 1, 1);
+    }
+    It(simple equality test){
+        asserteq("test", "test");
+    }
+    {
+        assert(42 > 0);
+    }
+}
+```
+
+#### Output Example
+
+```
+test 1 passed...   [1 / 1:`1` == 1:`1`]      It(divide by zero)
+test 2 passed...   ["test":`test` == "test":`test`]      It(simple equality test)
+test 3 passed...   [42 > 0:`True` == True]      It(test case 3)
+Result : 
+        3 tests passed
+        0 tests failed
+```
+
+This framework allows you to structure and run your tests efficiently with clear output indicating which tests passed or failed.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -177,12 +219,13 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## Future Improvements
 
-We're always looking to improve `fmt::display`. Here are some areas we're considering for future development:
+We're always looking to improve `fmt::display` and the testing framework. Here are some areas we're considering for future development:
 
-1. Performance optimizations
-2. Support for more complex formatting options (padding, alignment, etc.)
-3. Integration with existing logging libraries
-4. More extensive testing suite
-5. Additional specializations for other standard library types
+1. Performance optimizations.
+2. Support for more complex formatting options (padding, alignment, etc.).
+3. Integration with existing logging libraries.
+4. More extensive testing suite.
+5. Additional specializations for other standard library types.
+6. Expanded functionality for the testing framework.
 
 If you have any suggestions or would like to contribute to these efforts, please open an issue or submit a pull request!
