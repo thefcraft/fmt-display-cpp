@@ -1,126 +1,188 @@
-# fmt-display-cpp
-A lightweight C++ library for custom formatted output using templates, featuring type-based printing and support for standard and custom types.
+# fmt::display - A Flexible C++ Formatting Library
+
+`fmt::display` is a header-only C++ library that provides a flexible and extensible way to format and display various data types. Inspired by Rust's `Display` trait, this library allows for easy customization of how objects are printed and provides a consistent interface for outputting different types of data.
 
 ## Features
 
-- **Custom Formatting**: Define custom print formats for your types by specializing the `fmt::Display` template.
-- **Vector Support**: Automatically handle nested `std::vector` types.
-- **Stream-Based Output**: Use `fmt::fmtout` to collect formatted output as a string.
-- **Flexibility**: Print and format standard types and user-defined types seamlessly.
+- Custom display implementations for user-defined types
+- ANSI color support for terminal output
+- Built-in support for standard containers (vector, map, set)
+- Support for C++17 features like `std::optional` and `std::variant`
+- Compile-time type checking for printable types
+- String-building capabilities with `fmtout` class
+- Variadic template functions for flexible printing
 
-## Getting Started
+## Requirements
 
-### Installation
+- C++17 compatible compiler
+- Header-only library (no compilation needed)
 
-1. **Clone the Repository**
+## Installation
 
-   ```bash
-   git clone https://github.com/yourusername/fmt-display.git
-   ```
-
-2. **Include the Header**
-
-   Include the `fmt.display.h` header in your project:
-
-   ```cpp
-   #include "fmt.display.h"
-   ```
-
-### Usage
-
-#### Custom Display for User-Defined Types
-
-To customize the output for your own types, specialize the `fmt::Display` template. For example:
+1. Clone this repository or download the `fmt.display.h` file.
+2. Include the header in your C++ project:
 
 ```cpp
-class Point {
-public:
+#include "fmt.display.h"
+```
+
+## Usage
+
+### Basic Printing
+
+```cpp
+#include "fmt.display.h"
+
+int main() {
+    fmt::println("Hello, world!");
+    fmt::print("Value: ", 42, "\n");
+    return 0;
+}
+```
+
+Output:
+```
+Hello, world!
+Value: 42
+```
+
+### Custom Types
+
+Define a `Display` specialization for your custom types:
+
+```cpp
+struct Point {
     int x, y;
-    Point(int x, int y) : x(x), y(y) {}
 };
 
 template<>
 struct fmt::Display<Point> {
-    static std::string print(const Point &data) {
-        return fmt::sprint('(', data.x, ',', data.y, ')');
+    static std::string print(const Point& p) {
+        return fmt::sprint("(", p.x, ", ", p.y, ")");
     }
 };
-```
 
-#### Printing Vectors
-
-The library provides support for nested `std::vector` types. For example:
-
-```cpp
-std::vector<float> f = {1.0, 2.2, 3.0};
-fmt::println(f); // Output: [1.0, 2.2, 3.0]
-
-std::vector<std::vector<float>> p = {f, f, f};
-fmt::println(p); // Output: [[1.0, 2.2, 3.0], [1.0, 2.2, 3.0], [1.0, 2.2, 3.0]]
-```
-
-#### Using `fmt::fmtout` for Collecting Output
-
-You can use `fmt::fmtout` to collect output as a string:
-
-```cpp
-fmt::fmtout result;
-result.println(f, '\n', p);
-result.println(pp);
-std::cout << result.str() << std::endl;
-```
-
-#### Printing Custom Types
-
-Define how custom types should be printed by specializing the `fmt::Display` template. For example:
-
-```cpp
-class Complex {
-public:
-    float r, i;
-    Complex(float r, float i) : r(r), i(i) {}
-};
-
-template<>
-struct fmt::Display<Complex> {
-    static std::string print(const Complex &data) {
-        fmt::fmtout result;
-        result.print(data.r, '+');
-        result.print(data.i, 'i');
-        return result.str();
-    }
-};
-```
-
-#### Example Usage
-
-```cpp
 int main() {
-    std::vector<float> f = {1.0, 2.2, 3.0};
-    std::vector<std::vector<float>> p = {f, f, f};
-    std::vector<std::vector<std::vector<float>>> pp = {p, p, p};
-    
-    fmt::println(f);
-    fmt::println(p);
-    fmt::println(pp);
-    
-    fmt::fmtout result;
-    result.println(f, '\n', p);
-    result.println(pp);
-    std::cout << result.str() << std::endl;
-    
-    Point point(0, 0);
-    fmt::println("point : ", point);
-    
-    Complex c(3.8, 1.2);
-    fmt::print("Complex : ", c);
+    Point p{10, 20};
+    fmt::println("Point: ", p);
+    return 0;
 }
+```
+
+Output:
+```
+Point: (10, 20)
+```
+
+### Container Support
+
+The library provides built-in support for standard containers:
+
+```cpp
+#include <vector>
+#include <map>
+#include <set>
+
+int main() {
+    std::vector<int> vec = {1, 2, 3, 4, 5};
+    std::map<std::string, int> map = {{"one", 1}, {"two", 2}};
+    std::set<char> set = {'a', 'b', 'c'};
+
+    fmt::println("Vector: ", vec);
+    fmt::println("Map: ", map);
+    fmt::println("Set: ", set);
+
+    return 0;
+}
+```
+
+Output:
+```
+Vector: [1, 2, 3, 4, 5]
+Map: {one: 1, two: 2}
+Set: {a, b, c}
+```
+
+### ANSI Colors
+
+Use ANSI color codes for terminal output:
+
+```cpp
+fmt::println(ansi::red, "Error: ", ansi::reset, "Something went wrong!");
+```
+
+Output (colors may not be visible here):
+```
+Error: Something went wrong!
+```
+(The word "Error:" would appear in red in a terminal that supports ANSI colors)
+
+### String Building
+
+Use the `fmtout` class for building complex strings:
+
+```cpp
+fmt::fmtout out;
+out << "Hello, " << ansi::blue << "world" << ansi::reset << "!";
+fmt::println(out);
+```
+
+Output (colors may not be visible here):
+```
+Hello, world!
+```
+(The word "world" would appear in blue in a terminal that supports ANSI colors)
+
+### Advanced Usage
+
+The library also supports C++17 features like `std::optional` and `std::variant`:
+
+```cpp
+#include <optional>
+#include <variant>
+
+int main() {
+    std::optional<int> opt1 = 42;
+    std::optional<int> opt2;
+    fmt::println("Optional with value: ", opt1);
+    fmt::println("Optional without value: ", opt2);
+
+    std::variant<int, float, std::string> var1 = 10;
+    std::variant<int, float, std::string> var2 = 3.14f;
+    std::variant<int, float, std::string> var3 = "Hello";
+    fmt::println("Variant with int: ", var1);
+    fmt::println("Variant with float: ", var2);
+    fmt::println("Variant with string: ", var3);
+
+    return 0;
+}
+```
+
+Output:
+```
+Optional with value: Some(42)
+Optional without value: None
+Variant with int: Variant(10)
+Variant with float: Variant(3.14)
+Variant with string: Variant(Hello)
 ```
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request to suggest improvements or report bugs.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is open source and available under the [MIT License](LICENSE).
+
+## Future Improvements
+
+We're always looking to improve `fmt::display`. Here are some areas we're considering for future development:
+
+1. Performance optimizations
+2. Support for more complex formatting options (padding, alignment, etc.)
+3. Integration with existing logging libraries
+4. More extensive testing suite
+5. Additional specializations for other standard library types
+
+If you have any suggestions or would like to contribute to these efforts, please open an issue or submit a pull request!
