@@ -1,6 +1,12 @@
 #include <iostream>
 #include "fmt.display.h"
 #include <vector>
+#include <map>
+#include <set>
+#include <optional>
+#include <variant>
+
+
 using namespace std;
 // using namespace fmt;
 class Point{
@@ -14,7 +20,6 @@ struct fmt::Display<Point> {
         return fmt::sprint('(', data.x, ',', data.y, ')');
     }
 };
-
 class Complex{
     public:
         float r, i;
@@ -29,7 +34,18 @@ struct fmt::Display<Complex> {
         return result.str();
     }
 };
-// using namespace fmt;
+template<> 
+struct fmt::Display<float>{ 
+    static std::string print(const float &data) { 
+        return fmt::string_format("%.2f", data);
+    }
+};
+// template<> 
+// struct fmt::Display<int>{ 
+//     static std::string print(const float &data) { 
+//         return fmt::sprint("Int(", data, ")");
+//     }
+// };
 int main(){
     vector<float> f = {1.0, 2.2, 3.0};
     vector<vector<float>> p = {f, f, f};
@@ -48,14 +64,25 @@ int main(){
     fmt::println("point : ", point);
 
     Complex c = Complex(3.8, 1.2);
-    fmt::print("Complex : ", c);
+    fmt::println("Complex : ", c);
+
+    map<int, vector<float>> m;
+    m[0] = f;
+    m[1] = f;
+    m[2] = f;
+    fmt::println(m);
+
+    set<int> s = {1,2,3, 3, 3};
+    fmt::println(s);
+
+    optional<int> o;
+    fmt::println(o);
+
+    std::variant<int, float, vector<float>> myVar;
+    myVar = 42;                // Holds an int
+    fmt::println(myVar);
+    myVar = 3.14f;             // Holds a float
+    fmt::println(myVar);
+    myVar = f; 
+    fmt::println(myVar);
 }
-// Output
-// [1, 2.2, 3]
-// [[1, 2.2, 3], [1, 2.2, 3], [1, 2.2, 3]]
-// [[[1, 2.2, 3], [1, 2.2, 3], [1, 2.2, 3]], [[1, 2.2, 3], [1, 2.2, 3], [1, 2.2, 3]], [[1, 2.2, 3], [1, 2.2, 3], [1, 2.2, 3]]]
-// [1, 2.2, 3]
-// [[1, 2.2, 3], [1, 2.2, 3], [1, 2.2, 3]]
-// [[[1, 2.2, 3], [1, 2.2, 3], [1, 2.2, 3]], [[1, 2.2, 3], [1, 2.2, 3], [1, 2.2, 3]], [[1, 2.2, 3], [1, 2.2, 3], [1, 2.2, 3]]]
-// point : (0,0)
-// Complex : 3.8+1.2i
