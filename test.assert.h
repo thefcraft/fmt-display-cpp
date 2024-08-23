@@ -49,7 +49,7 @@
     }
     #define assert(b) test::assert_true((bool)b, #b)
     #define asserteq(x, y) test::assert_eq(x, y, #x, #y)
-    #define debug(x) std::cerr << "Debugging information: " << #x << " = " << (x) << std::endl
+    #define debug(x) std::cerr << "Debugging information: " << #x << " = " << fmt::sprint(x) << std::endl
     #define MAKE_TESTS void test::testsFn()
     #define RUN_TESTS test::run_tests()
     #define It(...) test::test_name_count++; test::test_name = #__VA_ARGS__; if(true)
