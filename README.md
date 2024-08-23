@@ -14,7 +14,7 @@
 
 ## Requirements
 
-- C++17 compatible compiler
+- C++11 compatible compiler
 - Header-only library (no compilation needed)
 
 ## Installation
