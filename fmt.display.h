@@ -6,6 +6,7 @@
     #include <typeinfo> // ?
     #include <memory>
     #include <stdexcept>
+    #include <iostream>
 
     namespace ansi {
         // ANSI styles
