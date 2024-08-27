@@ -13,12 +13,10 @@
         template <typename T, typename U>
         void assert_eq(T x, U y, std::string x_name, std::string y_name){
             int i = test::test_idx++;
-            if (test_name_count == test_name_count_old){
-                test_name = fmt::sprint("test case ", i);
-            }
-            else{
-                test_name_count_old++;
-            }
+            
+            if (test_name_count == test_name_count_old) test_name = fmt::sprint("test case ", i);
+            else test_name_count_old++;
+
             if(x == y) fmt::println(ansi::green, "test ", i, " passed...\t", ansi::white,"[", x_name, ":`", x, "` == ", y_name,":`", y,"`]",
                                  ansi::bg_black, ansi::blue, "\t\tIt(", test::test_name, ")" , ansi::reset);
             else { 
