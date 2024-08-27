@@ -40,8 +40,7 @@
                         ansi::bg_black, "\t\tIt(", test::test_name, ")" , ansi::reset);
                 } 
         }
-        void run_tests(){
-            test::testsFn();
+        void print_tests(){
             fmt::println(ansi::underline, ansi::cyan, "Result", ansi::reset, " :\n\t",  ansi::green, test::test_idx-test::test_failed-1, " tests passed\n\t", ansi::red, test::test_failed, " tests failed", ansi::reset);
         }
     }
@@ -49,6 +48,6 @@
     #define asserteq(x, y) test::assert_eq(x, y, #x, #y)
     #define debug(x) std::cerr << "Debugging information: " << #x << " = " << fmt::sprint(x) << std::endl
     #define MAKE_TESTS void test::testsFn()
-    #define RUN_TESTS test::run_tests()
+    #define RUN_TESTS test::testsFn(); test::print_tests()
     #define It(...) test::test_name_count++; test::test_name = #__VA_ARGS__; if(true)
 #endif
