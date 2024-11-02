@@ -1,6 +1,9 @@
 // fmt::display.h
 #ifndef FMT_DISPLAY_H
-#define FMT_DISPLAY_H
+    #define FMT_DISPLAY_H
+    
+    // #define FMT_DISPLAY_COMPILE_TIME_ERROR // NOT RECOMMENDED [as hard to find error location] uncomment if you want to use runtime type checking...
+
     #include <sstream>  // For std::ostringstream
     #include <type_traits> // ?
     #include <typeinfo> // ?
@@ -45,7 +48,7 @@
         template<typename ... Args>
         std::string string_format( const std::string& format, Args ... args ){
             int size_s = std::snprintf( nullptr, 0, format.c_str(), args ... ) + 1; // Extra space for '\0'
-            if( size_s <= 0 ){ throw std::runtime_error( "Error during formatting." ); }
+            if( size_s <= 0 ){ throw std::runtime_error("\033[31mError during formatting.\033[0m"); }
             auto size = static_cast<size_t>( size_s );
             std::unique_ptr<char[]> buf( new char[ size ] );
             std::snprintf( buf.get(), size, format.c_str(), args ... );
@@ -85,30 +88,60 @@
             // Implementation for types that should be printed
             template<typename T>
             inline void print_impl(const T& arg) {
+                #ifdef FMT_DISPLAY_COMPILE_TIME_ERROR
+                    static_assert(ShouldPrint<T>::value || is_printable<T>::value, 
+                        "\033[34m\n\n \
+                        \n********************************************************************** \033[0m\033[31m \
+                        \nError: fmt::Display is not implemented for some type \
+                        \nPlease implement the appropriate traits for this type. \
+                        \nIf you are using a custom type, consider adding fmt::Display<T> specialization. \
+                        \n\033[34m********************************************************************** \
+                        \n\n\033[0m");
+                #endif
+
                 if constexpr (ShouldPrint<T>::value) {
                     std::cout << Display<T>::print(arg);
-                }else if constexpr (!ShouldPrint<T>::value){
-                    if constexpr (is_printable<T>::value) {
+                }else{
+                    #ifdef FMT_DISPLAY_COMPILE_TIME_ERROR
                         std::cout << arg;
-                    } else {
-                        std::cout << std::endl << std::endl << ansi::red << "Error : fmt::Display is not implemented for type : " << typeid(T).name() << ansi::reset << std::endl << std::endl ; // Red Error message
-                        throw std::runtime_error( "fmt::Display is not implemented yet" ); 
-                    }
+                    #else
+                        if constexpr (is_printable<T>::value) {
+                            std::cout << arg;
+                        } else {
+                            std::cout << std::endl << std::endl << ansi::red << "Error : fmt::Display is not implemented for type : " << typeid(T).name() << ansi::reset << std::endl << std::endl ; // Red Error message
+                            throw std::runtime_error( "fmt::Display is not implemented yet" ); 
+                        }
+                    #endif
                 }
             }
             // Implementation for types that should be printed
             template<typename T>
             inline void print_impl_oss(const T& arg, std::ostringstream &oss) {
+                #ifdef FMT_DISPLAY_COMPILE_TIME_ERROR
+                    static_assert(ShouldPrint<T>::value || is_printable<T>::value, 
+                        "\033[34m\n\n \
+                        \n********************************************************************** \033[0m\033[31m \
+                        \nError: fmt::Display is not implemented for some type \
+                        \nPlease implement the appropriate traits for this type. \
+                        \nIf you are using a custom type, consider adding fmt::Display<T> specialization. \
+                        \n\033[34m********************************************************************** \
+                        \n\n\033[0m");
+                #endif
+
                 if constexpr (ShouldPrint<T>::value) {
                     oss << Display<T>::print(arg);
-                }else if constexpr (!ShouldPrint<T>::value){
-                    if constexpr (is_printable<T>::value) {
+                }else{
+                    #ifdef FMT_DISPLAY_COMPILE_TIME_ERROR
                         oss << arg;
-                    } else {
-                        // oss << ansi::red << "Error : fmt::Display is not implemented yet" << ansi::reset; // Red Warning message
-                        std::cout << std::endl << std::endl << ansi::red << "Error : fmt::Display is not implemented for type : " << typeid(T).name() << ansi::reset << std::endl << std::endl ; // Red Error message
-                        throw std::runtime_error( "fmt::Display is not implemented yet" ); 
-                    }
+                    #else
+                        if constexpr (is_printable<T>::value) {
+                            oss << arg;
+                        } else {
+                            // oss << ansi::red << "Error : fmt::Display is not implemented yet" << ansi::reset; // Red Warning message
+                            std::cout << std::endl << std::endl << ansi::red << "Error : fmt::Display is not implemented for type : " << typeid(T).name() << ansi::reset << std::endl << std::endl ; // Red Error message
+                            throw std::runtime_error( "fmt::Display is not implemented yet" ); 
+                        }
+                    #endif
                 }
             }
         }    
