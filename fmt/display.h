@@ -1,4 +1,3 @@
-// !!!deprecated use #include "fmt/full.h" or #include "fmt/display.h"
 // fmt::display.h
 #ifndef FMT_DISPLAY_H
     #define FMT_DISPLAY_H
@@ -47,7 +46,7 @@
     
     namespace fmt {
         template<typename ... Args>
-        std::string string_format( const std::string& format, Args ... args ){
+        std::string string_format( const std::string& format, Args ... args){
             int size_s = std::snprintf( nullptr, 0, format.c_str(), args ... ) + 1; // Extra space for '\0'
             if( size_s <= 0 ){ throw std::runtime_error("\033[31mError during formatting.\033[0m"); }
             auto size = static_cast<size_t>( size_s );
@@ -145,33 +144,15 @@
                     #endif
                 }
             }
-        }    
-        template<typename... Args>
-        inline void print(const Args&... args) {
-            (detail::print_impl(args), ...);
-        }
-        template<typename... Args>
-        inline void println(const Args&... args) {
-            (detail::print_impl(args), ...);
-            std::cout << std::endl;
-        }
-        template<typename... Args>
-        inline std::string sprint(const Args&... args) {
-            std::ostringstream oss;
-            (detail::print_impl_oss(args, oss), ...);
-            return oss.str();
-        }
-        template<typename... Args>
-        inline std::string sprintln(const Args&... args) {
-            std::ostringstream oss;
-            (detail::print_impl_oss(args, oss), ...);
-            oss << std::endl;
-            return oss.str();
-        }
-        
+        } 
+
         class fmtout{
-            std::ostringstream oss;
+            private:
+                std::ostringstream oss;
             public:
+                int depth = 0; // use for global depth aka fout
+                int mdepth = 0; // variable which can be used in some print functions
+
                 fmtout(){}
                 template<typename T>
                 fmtout(const T &str){oss<<str;}
@@ -192,9 +173,83 @@
                     oss << std::endl;
                 }
                 std::string str() const { return oss.str(); }
+                std::string clear_str() { std::string result = oss.str(); clear(); return result; }
                 void clear() { oss.str(""); oss.clear(); }
         };
         
+        class PrintFormatter{
+            private:
+                std::string sep;
+                std::string end;
+            public:
+                // Constructor with optional separator and end-of-line
+                PrintFormatter(const std::string& sep = "", const std::string& end = "")
+                    : sep(sep), end(end) {}
+                std::string separator() const { return sep;}
+                std::string end_of_line() const { return end;}
+                // Set separator
+                void set_separator(const std::string& sep) {
+                    this->sep = sep;
+                }
+                // Set end of line (like newline or custom string)
+                void set_end_of_line(const std::string& end) {
+                    this->end = end;
+                }
+                // Function to print with separator and end_of_line
+                template<typename T, typename... Args>
+                inline void print(const T& first, const Args&... args) {
+                    detail::print_impl(first);
+                    if (sep != "") ((std::cout << sep, detail::print_impl(args)), ...);
+                    else (detail::print_impl(args), ...);
+                    if (end != "") std::cout << end;
+                }
+                template<typename T, typename... Args>
+                inline std::string sprint(const T& first, const Args&... args) {
+                    std::ostringstream oss;
+                    detail::print_impl_oss(first, oss);
+                    if (sep != "") ((oss << sep, detail::print_impl_oss(args, oss)), ...);
+                    else (detail::print_impl_oss(args, oss), ...);
+                    if (end != "") oss << end;
+                    return oss.str();
+                }
+                template<typename T, typename... Args>
+                inline void operator()(const T& first, const Args&... args) {
+                    detail::print_impl(first);
+                    if (sep != "") ((std::cout << sep, detail::print_impl(args)), ...);
+                    else (detail::print_impl(args), ...);
+                    if (end != "") std::cout << end;
+                }
+                inline void operator()() {
+                    if (end != "") std::cout << end;
+                }
+        };
+
+        fmtout fout;
+        PrintFormatter print = PrintFormatter("", "");
+        PrintFormatter println = PrintFormatter("", "\n");
+
+        // template<typename... Args>
+        // inline void print(const Args&... args) {
+        //     (detail::print_impl(args), ...);
+        // }
+        // template<typename... Args>
+        // inline void println(const Args&... args) {
+        //     (detail::print_impl(args), ...);
+        //     std::cout << std::endl;
+        // }
+        template<typename... Args>
+        inline std::string sprint(const Args&... args) {
+            std::ostringstream oss;
+            (detail::print_impl_oss(args, oss), ...);
+            return oss.str();
+        }
+        template<typename... Args>
+        inline std::string sprintln(const Args&... args) {
+            std::ostringstream oss;
+            (detail::print_impl_oss(args, oss), ...);
+            oss << std::endl;
+            return oss.str();
+        }
     }
 
     template<>
@@ -203,81 +258,4 @@
             return data.str();
         }
     };
-
-    template<>
-    struct fmt::Display<bool> {
-        static std::string print(const bool &data) {
-            if (data) return "True";
-            else return "False";
-        }
-    };
-
-    // Display specializations for standard containers
-    #include <vector> // for vector printing
-    template<typename T>
-    struct fmt::Display<std::vector<T>> {
-        static std::string print(const std::vector<T> &data) {
-            fmt::fmtout result;
-            result.print('[');
-            bool first = true;
-            for (const auto& item : data) {
-                if (!first) result.print(", ");
-                result.print(item);
-                first = false;
-            }
-            result.print(']');
-            return result.str();
-        }
-    };
-    #include <map>
-    template<typename K, typename V>
-    struct fmt::Display<std::map<K, V>> {
-        static std::string print(const std::map<K, V>& map) {
-            fmt::fmtout out;
-            out << "{";
-            bool first = true;
-            for (const auto& [key, value] : map) {
-                if (!first) out << ", ";
-                out << key << ": " << value;
-                first = false;
-            }
-            out << "}";
-            return out.str();
-        }
-    };
-    #include <set>
-    template<typename T>
-    struct fmt::Display<std::set<T>> {
-        static std::string print(const std::set<T>& set) {
-            fmtout out;
-            out << "{";
-            bool first = true;
-            for (const auto& value : set) {
-                if (!first) out << ", ";
-                out << value;
-                first = false;
-            }
-            out << "}";
-            return out.str();
-        }
-    };
-    #if __cplusplus >= 201703L // C++17 or newer
-        #include <optional>
-        template<typename T>
-        struct fmt::Display<std::optional<T>> {
-            static std::string print(const std::optional<T>& opt) {
-                if (opt) return sprint("Some(", *opt, ")");
-                else return "None";
-            }
-        };
-        #include <variant>
-        template<typename... Types>
-        struct fmt::Display<std::variant<Types...>> {
-            static std::string print(const std::variant<Types...>& var) {
-                return std::visit([](const auto& value) {
-                    return sprint("Variant(", value, ")");
-                }, var);
-            }
-        };
-    #endif // __cplusplus >= 201703L
 #endif 
