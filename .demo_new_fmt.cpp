@@ -39,6 +39,8 @@ int main() {
 
     fmt::println(data);
 
+    fmt::println("number: ", std::fixed, std::setprecision(2), 123.123);
+
     fmt::println.printf("name: {}, age: {r}", "laksh", false);
     // fmt::println.printf("36 in hex: {:x}", 36);
     // fmt::println.printf("123.123: {:.2f}", 123.123);

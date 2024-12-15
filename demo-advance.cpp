@@ -1,4 +1,4 @@
-#include "fmt.display.h"
+#include "fmt/full.h"
 #include <vector>
 #include <map>
 #include <optional>
@@ -13,7 +13,7 @@ struct Point {
 template<>
 struct fmt::Display<Point> {
     static std::string print(const Point& p) {
-        return fmt::string_format("Point(%d, %d)", p.x, p.y);
+        return fmt::format_string("Point(%d, %d)", p.x, p.y);
     }
 };
 
@@ -32,8 +32,8 @@ template<>
 struct fmt::Display<User> {
     static std::string print(const User& user) {
         fmt::fmtout out;
-        out << ansi::cyan << "User" << ansi::reset << "{name: " << ansi::green << user.name << ansi::reset 
-            << ", age: " << ansi::yellow << user.age << ansi::reset << "}";
+        out << ansi::cyan << "User" << ansi::reset << "{\n\tname: " << ansi::green << user.name << ansi::reset 
+            << ",\n\tage: " << ansi::yellow << user.age << ansi::reset << "\n}";
         return out.str();
     }
 };
@@ -86,7 +86,7 @@ int main() {
 
     // String formatting
     fmt::println(ansi::blue, "=== String Formatting Demo ===", ansi::reset);
-    std::string formatted = fmt::string_format("Pi is approximately %.2f", 3.14159);
+    std::string formatted = fmt::format_string("Pi is approximately %.2f", 3.14159);
     fmt::println(formatted);
 
     // ANSI styles showcase
