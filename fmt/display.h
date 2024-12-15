@@ -12,6 +12,10 @@
 #include <stdexcept> // For std::runtime_error
 #include <iostream> // For std::cout
 
+#include <algorithm>
+#include <bitset>
+#include <iomanip>
+
 namespace ansi {
     // ANSI escape codes for text formatting
     constexpr auto reset = "\033[0m";             // Reset style
@@ -68,7 +72,7 @@ namespace fmt {
     };
 
     namespace detail {
-        // Helper type to check if T has operator<< for std::ostream
+        // Helper type to check if T has operator<< for std::ostream i.e., for std::cout
         template<typename T>
         struct is_printable{
             private:
@@ -80,7 +84,7 @@ namespace fmt {
                 static constexpr bool value = decltype(test<T>(0))::value;
         };
 
-        // Helper trait to detect if a type has a custom Display specialization
+        // Helper trait to detect if a type has a custom Display specialization i.e., struct fmt::Display<XXX>
         template<typename T>
         struct ShouldPrint {
             private:
@@ -143,15 +147,10 @@ namespace fmt {
             std::ostringstream oss;
 
         public:
-            int depth = 0; // use for global depth aka fout
-            int mdepth = 0; // variable which can be used in some print functions
+            void *data;
+            int data_size;
 
-            fmtout() {}
-            
-            template<typename T>
-            fmtout(const T &str) {
-                oss << str;
-            }
+            fmtout(void * data = nullptr, int data_size = 0): data(data), data_size(data_size) {}
             
             // Overloaded operator<< to handle output
             template<typename T>
@@ -187,6 +186,114 @@ namespace fmt {
             void clear() { oss.str(""); oss.clear(); }
     };
     
+    // TODO: BETA NAMESPACE
+    namespace __format_namespace{
+        template <typename T>
+        inline void f_octal(fmt::fmtout &oss, const T& value){
+            oss << std::oct << value;
+        }
+        template <typename T>
+        inline void f_bin(fmt::fmtout &oss, const T& value){
+            oss << std::bitset<16>(value);
+        }
+        template <typename T>
+        inline void f_hex(fmt::fmtout &oss, const T& value){
+            oss << std::hex << value;
+        }
+        template <typename T>
+        inline void f_scientific(fmt::fmtout &oss, const T& value){
+            oss << std::scientific << value;
+        }
+        template <typename T>
+        inline void f_fixed(fmt::fmtout &oss, const T& value){
+            oss << std::fixed << value;
+        }
+        // Helper function to format individual values
+        template <typename T>
+        std::string formatValue(const T& value, const std::string& format) {
+            fmt::fmtout oss;
+        
+            if (format.empty() || format.length() == 1) {
+                oss << value;
+                return oss.str();
+            }
+            if (format.length() == 2 && format[0] == '!' && format[1] == 'r') { // {!r} => 'value'
+                oss << '\'' << value << '\'';
+                return oss.str();
+            }
+            if (format[0] != ':') {
+                std::cout<<"\033[31mError: Unknown format {"<<format<<"}\033[0m";
+                throw std::runtime_error("\033[31mError during formatting.\033[0m"); // In case unknown specific format 
+            }
+
+            // if (format.length() == 2 && format[1] == '_') {
+            //     oss << "1_000_000";
+            // }else if (format.length() == 2 && format[1] == ',') {
+            //     oss << "1,000,000";
+            // }else 
+            if (format.length() == 2 && format[1] == 'o') {
+                f_octal(oss, value);
+            }else if (format.length() == 2 && format[1] == 'b') {
+                f_bin(oss, value);
+            }else if (format.length() == 2 && format[1] == 'x') {
+                f_hex(oss, value);
+            }else if (format.length() == 2 && format[1] == 'e') {
+                f_scientific(oss, value);
+            }else if (format.length() == 2 && format[1] == 'f') {
+                f_fixed(oss, value);
+            }else if (format.length() == 3 && format[1] == '!' && format[2] == 'r') { // {:!r} => 'value'
+                oss << '\'' << value << '\'';
+            }else if (format.length() >= 3 && format[2] == '<') {
+                int width = std::stoi(format.substr(3));
+                oss << std::left << std::setfill(format[1]) << std::setw(width) << value;
+            }else if (format.length() >= 3 && format[2] == '>') {
+                int width = std::stoi(format.substr(3));
+                oss << std::right << std::setfill(format[1]) << std::setw(width) << value;
+            }else if (format.length() >= 3 && format[2] == '^') {
+                int width = std::stoi(format.substr(3));
+                oss << std::internal << std::setfill(format[1]) << std::setw(width) << value;
+            }else if (format[1] == '<') {
+                int width = std::stoi(format.substr(2));
+                oss << std::left << std::setw(width) << value;
+            }else if (format[1] == '>') {
+                int width = std::stoi(format.substr(2));
+                oss << std::right << std::setw(width) << value;
+            }else if (format[1] == '^') {
+                int width = std::stoi(format.substr(2));
+                oss << std::internal << std::setw(width) << value;
+            }else if (format[1] == '.' && format[format.length()-1] == 'f') {
+                int precision = std::stoi(format.substr(2, format.length()-2));
+                oss << std::fixed << std::setprecision(precision) << value;
+            }else{
+                std::cout<<"\033[31mError: Unknown format {"<<format<<"}\033[0m";
+                throw std::runtime_error("\033[31mError during formatting.\033[0m"); // In case unknown specific format 
+            }
+            return oss.str();
+        }
+
+
+        // Base case: no arguments left to process
+        void formatImpl(std::string::size_type pos, std::string& result) {}
+
+        // Recursive case: process each argument and format accordingly
+        template <typename Arg, typename... Args>
+        void formatImpl(std::string::size_type pos, std::string& result, const Arg& arg, const Args&... args) {
+            pos = result.find("{", pos);  // Find the next placeholder
+            std::string::size_type end = result.find("}", pos+1);
+            if (pos == std::string::npos || end == std::string::npos) return;
+            while (true){
+                std::string::size_type start = result.find("{", pos+1);
+                if (start == std::string::npos || start > end) break;
+                pos = start;
+            }
+            std::string specifier = result.substr(pos + 1, end - pos - 1);
+            specifier.erase(std::remove(specifier.begin(), specifier.end(), ' '), specifier.end()); // remove all space
+            result.replace(pos, end - pos + 1, 
+                           formatValue(arg, specifier));
+            formatImpl(end, result, args...);  // Recursively process the remaining arguments
+        }
+    };
+
     // PrintFormatter class for customized print formatting
     class PrintFormatter{
         private:
@@ -215,7 +322,7 @@ namespace fmt {
 
             // Print with separator and end of line
             template<typename T, typename... Args>
-            void print(const T& first, const Args&... args) {
+            inline void print(const T& first, const Args&... args) {
                 detail::print_impl(first);
                 if (sep != "") ((std::cout << sep, detail::print_impl(args)), ...);
                 else (detail::print_impl(args), ...);
@@ -224,7 +331,7 @@ namespace fmt {
 
             // Return formatted string
             template<typename T, typename... Args>
-            std::string sprint(const T& first, const Args&... args) {
+            inline std::string sprint(const T& first, const Args&... args) {
                 std::ostringstream oss;
                 detail::print_impl_oss(first, oss);
                 if (sep != "") ((oss << sep, detail::print_impl_oss(args, oss)), ...);
@@ -233,12 +340,26 @@ namespace fmt {
                 return oss.str();
             }
             
-            // template<typename... Args>
-            // void printf(const std::string& str, const Args&... args) {
-            //     std::stringstream ss;
-            //     std::string result = str;
-
-            // }
+            // TODO: BETA FUNCTION
+            template<typename... Args>
+            inline void printf(const std::string& str, const Args&... args) {
+                std::string result = str;
+                std::string::size_type pos = 0;
+                __format_namespace::formatImpl(pos, result, args...);  // Start the recursive formatting
+                std::cout << result;
+                if (end != "") std::cout << end;
+            }
+            // TODO: BETA FUNCTION
+            template<typename... Args>
+            inline std::string sprintf(const std::string& str, const Args&... args) {
+                std::ostringstream oss;
+                std::string result = str;
+                std::string::size_type pos = 0;
+                __format_namespace::formatImpl(pos, result, args...);  // Start the recursive formatting
+                oss << result;
+                if (end != "") oss << end;
+                return oss.str();
+            }
             
             // Operator() to print the formatted output
             template<typename T, typename... Args>
@@ -247,7 +368,7 @@ namespace fmt {
             }
             
             // Operator() to print just the end of line if no arguments
-            void operator()() {
+            inline void operator()() {
                 if (end != "") std::cout << end;
             }
         };

@@ -38,6 +38,10 @@ int main() {
 
     fmt::println(data);
 
+    fmt::println.printf("name: {}, age: {}", "laksh", 16);
+    fmt::println.printf("36 in hex: {:x}", 36);
+    fmt::println.printf("123.123: {:.2f}", 123.123);
+
     return 0;
 }
 

@@ -2,68 +2,82 @@
 
 #include "display.h"
 #include <vector> // for vector printing
+#include <stdexcept> // For std::runtime_error
 
-const int max_print = 6;
-static_assert(max_print > 1, "max_print must be greater than 1");
-// fmt::fmtout _fout_vector_large; // insted of the global fout we can use this as well... just replace fmt::fout to _fout_vector_large
+namespace _vector_large{
+    const int max_print = 6;
+    static_assert(max_print > 1, "max_print must be greater than 1");
+
+    typedef struct State{
+        int depth; // curr depth
+        int mdepth; // max depth
+    } State;
+
+    State state;
+    fmt::fmtout fout(&state, sizeof(State));
+}
+
+
 template<typename T>
 struct fmt::Display<std::vector<T>> {
     static std::string print(const std::vector<T> &data) {
-        fmt::fout.print('[');
-        if (data.size() <= max_print){
+        _vector_large::State *state = (_vector_large::State *)_vector_large::fout.data;
+        _vector_large::fout.print('[');
+        if (data.size() <= _vector_large::max_print){
             bool first = true;
             for (const auto& item : data) {
                 if (!first) {
-                    if(fmt::fout.mdepth == fmt::fout.depth) fmt::fout.print(", ");
+                    if(state->mdepth == state->depth) _vector_large::fout.print(", ");
                     else {
-                        fmt::fout.print(",");
-                        for (int i = fmt::fout.depth; i < fmt::fout.mdepth; i++) fmt::fout.print("\n");
-                        for (int i = 0; i <= fmt::fout.depth; i++) fmt::fout.print(" ");
+                        _vector_large::fout.print(",");
+                        for (int i = state->depth; i < state->mdepth; i++) _vector_large::fout.print("\n");
+                        for (int i = 0; i <= state->depth; i++) _vector_large::fout.print(" ");
                     }
                 }
-                fmt::fout.mdepth = (fmt::fout.mdepth<fmt::fout.depth)?fmt::fout.depth:fmt::fout.mdepth;
-                fmt::fout.depth++; fmt::fout.print(item); fmt::fout.depth--;
+                state->mdepth = (state->mdepth<state->depth)?state->depth:state->mdepth;
+                state->depth++; _vector_large::fout.print(item); state->depth--;
                 first = false;
             }
         }else{
-            fmt::fout.mdepth = (fmt::fout.mdepth<fmt::fout.depth)?fmt::fout.depth:fmt::fout.mdepth;
-            fmt::fout.depth++; fmt::fout.print(data[0]); fmt::fout.depth--;
-            for (int idx = 1; idx < max_print/2 + max_print%2; idx++){
-                if(fmt::fout.mdepth == fmt::fout.depth) fmt::fout.print(", ");
+            state->mdepth = (state->mdepth<state->depth)?state->depth:state->mdepth;
+            state->depth++; _vector_large::fout.print(data[0]); state->depth--;
+            for (int idx = 1; idx < _vector_large::max_print/2 + _vector_large::max_print%2; idx++){
+                if(state->mdepth == state->depth) _vector_large::fout.print(", ");
                 else{
-                    fmt::fout.print(",");
-                    for (int i = fmt::fout.depth; i < fmt::fout.mdepth; i++) fmt::fout.print("\n");
-                    for (int i = 0; i <= fmt::fout.depth; i++) fmt::fout.print(" ");
+                    _vector_large::fout.print(",");
+                    for (int i = state->depth; i < state->mdepth; i++) _vector_large::fout.print("\n");
+                    for (int i = 0; i <= state->depth; i++) _vector_large::fout.print(" ");
                 }
-                fmt::fout.depth++; fmt::fout.print(data[idx]); fmt::fout.depth--;
+                state->depth++; _vector_large::fout.print(data[idx]); state->depth--;
             }
-            // fmt::fout.print(",\n\n");
-            if(fmt::fout.mdepth == fmt::fout.depth) fmt::fout.print(", ");
+            // _vector_large::fout.print(",\n\n");
+            if(state->mdepth == state->depth) _vector_large::fout.print(", ");
             else{
-                fmt::fout.print(",");
-                for (int i = fmt::fout.depth; i < fmt::fout.mdepth; i++) fmt::fout.print("\n");
-                for (int i = 0; i <= fmt::fout.depth; i++) fmt::fout.print(" ");
+                _vector_large::fout.print(",");
+                for (int i = state->depth; i < state->mdepth; i++) _vector_large::fout.print("\n");
+                for (int i = 0; i <= state->depth; i++) _vector_large::fout.print(" ");
             }
-            fmt::fout.print("...");
-            if(fmt::fout.mdepth == fmt::fout.depth) fmt::fout.print(", ");
+            _vector_large::fout.print("...");
+            if(state->mdepth == state->depth) _vector_large::fout.print(", ");
             else{
-                fmt::fout.print(",");
-                for (int i = fmt::fout.depth; i < fmt::fout.mdepth; i++) fmt::fout.print("\n");
-                for (int i = 0; i <= fmt::fout.depth; i++) fmt::fout.print(" ");
+                _vector_large::fout.print(",");
+                for (int i = state->depth; i < state->mdepth; i++) _vector_large::fout.print("\n");
+                for (int i = 0; i <= state->depth; i++) _vector_large::fout.print(" ");
             }
-            fmt::fout.depth++; fmt::fout.print(data[data.size()-max_print/2]); fmt::fout.depth--;
-            for (int idx = data.size()-max_print/2+1; idx < data.size(); idx++){
-                if(fmt::fout.mdepth == fmt::fout.depth) fmt::fout.print(", ");
+            state->depth++; _vector_large::fout.print(data[data.size()-_vector_large::max_print/2]); state->depth--;
+            for (int idx = data.size()-_vector_large::max_print/2+1; idx < data.size(); idx++){
+                if(state->mdepth == state->depth) _vector_large::fout.print(", ");
                 else{
-                    fmt::fout.print(",");
-                    for (int i = fmt::fout.depth; i < fmt::fout.mdepth; i++) fmt::fout.print("\n");
-                    for (int i = 0; i <= fmt::fout.depth; i++) fmt::fout.print(" ");
+                    _vector_large::fout.print(",");
+                    for (int i = state->depth; i < state->mdepth; i++) _vector_large::fout.print("\n");
+                    for (int i = 0; i <= state->depth; i++) _vector_large::fout.print(" ");
                 }
-                fmt::fout.depth++; fmt::fout.print(data[idx]); fmt::fout.depth--;
+                state->depth++; _vector_large::fout.print(data[idx]); state->depth--;
             }
         }
-        fmt::fout.print(']');
-        if (fmt::fout.depth == 0) fmt::fout.mdepth = 0; // reseting
-        return fmt::fout.clear_str();
+        
+        _vector_large::fout.print(']');
+        if (state->depth == 0) state->mdepth = 0; // reseting
+        return _vector_large::fout.clear_str();
     }
 };
