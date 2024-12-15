@@ -9,7 +9,7 @@
 template<> 
 struct fmt::Display<float>{ 
     static std::string print(const float &data) { 
-        return fmt::string_format("%.4f", data);
+        return fmt::format_string("%.4f", data);
     }
 };
 

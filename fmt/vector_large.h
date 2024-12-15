@@ -5,7 +5,7 @@
 
 const int max_print = 6;
 static_assert(max_print > 1, "max_print must be greater than 1");
-
+// fmt::fmtout _fout_vector_large; // insted of the global fout we can use this as well... just replace fmt::fout to _fout_vector_large
 template<typename T>
 struct fmt::Display<std::vector<T>> {
     static std::string print(const std::vector<T> &data) {
