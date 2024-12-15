@@ -1,5 +1,6 @@
 #include "fmt/display.h"
 #include "fmt/vector_large.h"
+#include "fmt/bool.h"
 #include <iostream>
 #include <vector>
 
@@ -38,9 +39,9 @@ int main() {
 
     fmt::println(data);
 
-    fmt::println.printf("name: {}, age: {}", "laksh", 16);
-    fmt::println.printf("36 in hex: {:x}", 36);
-    fmt::println.printf("123.123: {:.2f}", 123.123);
+    fmt::println.printf("name: {}, age: {r}", "laksh", false);
+    // fmt::println.printf("36 in hex: {:x}", 36);
+    // fmt::println.printf("123.123: {:.2f}", 123.123);
 
     return 0;
 }

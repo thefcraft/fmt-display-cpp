@@ -188,87 +188,91 @@ namespace fmt {
     
     // TODO: BETA NAMESPACE
     namespace __format_namespace{
-        template <typename T>
-        inline void f_octal(fmt::fmtout &oss, const T& value){
-            oss << std::oct << value;
-        }
-        template <typename T>
-        inline void f_bin(fmt::fmtout &oss, const T& value){
-            oss << std::bitset<16>(value);
-        }
-        template <typename T>
-        inline void f_hex(fmt::fmtout &oss, const T& value){
-            oss << std::hex << value;
-        }
-        template <typename T>
-        inline void f_scientific(fmt::fmtout &oss, const T& value){
-            oss << std::scientific << value;
-        }
-        template <typename T>
-        inline void f_fixed(fmt::fmtout &oss, const T& value){
-            oss << std::fixed << value;
-        }
+        // template <typename T>
+        // inline void f_octal(fmt::fmtout &oss, const T& value){
+        //     oss << std::oct << value;
+        // }
+        // template <typename T>
+        // inline void f_bin(fmt::fmtout &oss, const T& value){
+        //     oss << std::bitset<16>(value);
+        // }
+        // template <typename T>
+        // inline void f_hex(fmt::fmtout &oss, const T& value){
+        //     oss << std::hex << value;
+        // }
+        // template <typename T>
+        // inline void f_scientific(fmt::fmtout &oss, const T& value){
+        //     oss << std::scientific << value;
+        // }
+        // template <typename T>
+        // inline void f_fixed(fmt::fmtout &oss, const T& value){
+        //     oss << std::fixed << value;
+        // }
         // Helper function to format individual values
         template <typename T>
         std::string formatValue(const T& value, const std::string& format) {
             fmt::fmtout oss;
-        
             if (format.empty() || format.length() == 1) {
                 oss << value;
-                return oss.str();
+                return oss.clear_str();
             }
             if (format.length() == 2 && format[0] == '!' && format[1] == 'r') { // {!r} => 'value'
                 oss << '\'' << value << '\'';
-                return oss.str();
+                return oss.clear_str();
             }
+            
             if (format[0] != ':') {
-                std::cout<<"\033[31mError: Unknown format {"<<format<<"}\033[0m";
-                throw std::runtime_error("\033[31mError during formatting.\033[0m"); // In case unknown specific format 
+                oss << value;
+                // std::cout<<"\033[31mError: Unknown format {"<<format<<"}\033[0m";
+                // throw std::runtime_error("\033[31mError during formatting.\033[0m"); // In case unknown specific format 
             }
-
-            // if (format.length() == 2 && format[1] == '_') {
-            //     oss << "1_000_000";
-            // }else if (format.length() == 2 && format[1] == ',') {
-            //     oss << "1,000,000";
+            // // if (format.length() == 2 && format[1] == '_') {
+            // //     oss << "1_000_000";
+            // // }else if (format.length() == 2 && format[1] == ',') {
+            // //     oss << "1,000,000";
+            // // }else 
+            // if (format.length() == 2 && format[1] == 'o') {
+            //     f_octal(oss, value);
+            // }else if (format.length() == 2 && format[1] == 'b') {
+            //     f_bin(oss, value);
+            // }else if (format.length() == 2 && format[1] == 'x') {
+            //     f_hex(oss, value);
+            // }else if (format.length() == 2 && format[1] == 'e') {
+            //     f_scientific(oss, value);
+            // }else if (format.length() == 2 && format[1] == 'f') {
+            //     f_fixed(oss, value);
             // }else 
-            if (format.length() == 2 && format[1] == 'o') {
-                f_octal(oss, value);
-            }else if (format.length() == 2 && format[1] == 'b') {
-                f_bin(oss, value);
-            }else if (format.length() == 2 && format[1] == 'x') {
-                f_hex(oss, value);
-            }else if (format.length() == 2 && format[1] == 'e') {
-                f_scientific(oss, value);
-            }else if (format.length() == 2 && format[1] == 'f') {
-                f_fixed(oss, value);
-            }else if (format.length() == 3 && format[1] == '!' && format[2] == 'r') { // {:!r} => 'value'
+            else if (format.length() == 3 && format[1] == '!' && format[2] == 'r') { // {:!r} => 'value'
                 oss << '\'' << value << '\'';
-            }else if (format.length() >= 3 && format[2] == '<') {
-                int width = std::stoi(format.substr(3));
-                oss << std::left << std::setfill(format[1]) << std::setw(width) << value;
-            }else if (format.length() >= 3 && format[2] == '>') {
-                int width = std::stoi(format.substr(3));
-                oss << std::right << std::setfill(format[1]) << std::setw(width) << value;
-            }else if (format.length() >= 3 && format[2] == '^') {
-                int width = std::stoi(format.substr(3));
-                oss << std::internal << std::setfill(format[1]) << std::setw(width) << value;
-            }else if (format[1] == '<') {
-                int width = std::stoi(format.substr(2));
-                oss << std::left << std::setw(width) << value;
-            }else if (format[1] == '>') {
-                int width = std::stoi(format.substr(2));
-                oss << std::right << std::setw(width) << value;
-            }else if (format[1] == '^') {
-                int width = std::stoi(format.substr(2));
-                oss << std::internal << std::setw(width) << value;
-            }else if (format[1] == '.' && format[format.length()-1] == 'f') {
-                int precision = std::stoi(format.substr(2, format.length()-2));
-                oss << std::fixed << std::setprecision(precision) << value;
-            }else{
-                std::cout<<"\033[31mError: Unknown format {"<<format<<"}\033[0m";
-                throw std::runtime_error("\033[31mError during formatting.\033[0m"); // In case unknown specific format 
             }
-            return oss.str();
+            // else if (format.length() >= 3 && format[2] == '<') {
+            //     int width = std::stoi(format.substr(3));
+            //     oss << std::left << std::setfill(format[1]) << std::setw(width) << value;
+            // }else if (format.length() >= 3 && format[2] == '>') {
+            //     int width = std::stoi(format.substr(3));
+            //     oss << std::right << std::setfill(format[1]) << std::setw(width) << value;
+            // }else if (format.length() >= 3 && format[2] == '^') {
+            //     int width = std::stoi(format.substr(3));
+            //     oss << std::internal << std::setfill(format[1]) << std::setw(width) << value;
+            // }else if (format[1] == '<') {
+            //     int width = std::stoi(format.substr(2));
+            //     oss << std::left << std::setw(width) << value;
+            // }else if (format[1] == '>') {
+            //     int width = std::stoi(format.substr(2));
+            //     oss << std::right << std::setw(width) << value;
+            // }else if (format[1] == '^') {
+            //     int width = std::stoi(format.substr(2));
+            //     oss << std::internal << std::setw(width) << value;
+            // }else if (format[1] == '.' && format[format.length()-1] == 'f') {
+            //     int precision = std::stoi(format.substr(2, format.length()-2));
+            //     oss << std::fixed << std::setprecision(precision) << value;
+            // }
+            else{
+                oss << value;
+                // std::cout<<"\033[31mError: Unknown format {"<<format<<"}\033[0m";
+                // throw std::runtime_error("\033[31mError during formatting.\033[0m"); // In case unknown specific format 
+            }
+            return oss.clear_str();
         }
 
 
