@@ -195,7 +195,7 @@ function FeatureCard({ icon, title, description }: { icon: React.JSX.Element, ti
 
 function CodeArea({ title, code }: {title: string, code: string}) {
   return (
-    <div className="group relative rounded-lg border p-6 hover:border-blue-300 transition-all w-full overflow-scroll">
+    <div className="group relative rounded-lg border p-6 hover:border-blue-300 transition-all w-full overflow-auto">
       <h3 className="text-lg font-semibold mb-2 w-full">{title}</h3>
    
       <CodeBlock header
