@@ -148,9 +148,9 @@ namespace fmt {
 
         public:
             void *data;
-            int data_size;
+            size_t data_size;
 
-            fmtout(void * data = nullptr, int data_size = 0): data(data), data_size(data_size) {}
+            fmtout(void *data = nullptr, size_t data_size = 0): data(data), data_size(data_size) {}
             
             // Overloaded operator<< to handle output
             template<typename T>
