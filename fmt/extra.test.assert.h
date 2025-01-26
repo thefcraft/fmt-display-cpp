@@ -68,8 +68,8 @@
 
             // Show the diff if there's a difference
             if (is_different) {
-                fmt::println(ansi::green, "+", ansi::yellow, " '", ansi::reset, expected_diff, ansi::yellow, "'");  // Expected (green for difference)
-                fmt::println(ansi::red, "-", ansi::yellow, " '", ansi::reset, actual_diff, ansi::yellow, "'");  // Actual (red for difference)
+                fmt::println(ansi::green, "+", ansi::yellow, " '", ansi::reset, expected_diff, ansi::yellow, "'", ansi::reset);  // Expected (green for difference)
+                fmt::println(ansi::red, "-", ansi::yellow, " '", ansi::reset, actual_diff, ansi::yellow, "'", ansi::reset);  // Actual (red for difference)
             }
         }
         
