@@ -24,6 +24,55 @@
             return result;
         }
         
+        std::string join_new_line(const std::string& str) {
+            return str;  // Base case for a single string
+        }
+        template<typename... Args>
+        std::string join_new_line(const std::string& str, const Args&... args) {
+            return str + "\n" + join_new_line(args...);  // Recursively join strings with newlines
+        }
+        // Function to show git-like diff with color and formatted output
+        void show_git_diff(const std::string& expected, const std::string& actual) {
+            size_t len_expected = expected.length();
+            size_t len_actual = actual.length();
+            size_t max_len = std::max(len_expected, len_actual);
+
+            // Start constructing the output
+            std::string expected_diff = "";
+            std::string actual_diff = "";
+
+            bool is_different = false;
+
+            // Compare the expected and actual strings
+            for (size_t i = 0; i < max_len; ++i) {
+                if (i < len_expected && i < len_actual) {
+                    // If the characters are the same, print them in white
+                    if (expected[i] == actual[i]) {
+                        expected_diff += expected[i];
+                        actual_diff += actual[i];
+                    } else {
+                        // Characters are different, highlight differences
+                        expected_diff += fmt::print.sprint(ansi::green, expected[i], ansi::reset);
+                        actual_diff += fmt::print.sprint(ansi::red, actual[i], ansi::reset);
+                        is_different = true;
+                    }
+                } else if (i < len_expected) {
+                    // If actual is shorter than expected, print expected as green
+                    expected_diff += fmt::print.sprint(ansi::green, expected[i], ansi::reset);
+                    is_different = true;
+                } else if (i < len_actual) {
+                    actual_diff += fmt::print.sprint(ansi::red, actual[i], ansi::reset);
+                    is_different = true;
+                }
+            }
+
+            // Show the diff if there's a difference
+            if (is_different) {
+                fmt::println(ansi::green, "+", ansi::yellow, " '", ansi::reset, expected_diff, ansi::yellow, "'");  // Expected (green for difference)
+                fmt::println(ansi::red, "-", ansi::yellow, " '", ansi::reset, actual_diff, ansi::yellow, "'");  // Actual (red for difference)
+            }
+        }
+        
         class Tin {
             std::stringstream buffer;
             std::streambuf* old_cin;
@@ -106,6 +155,9 @@
                         fmt::println(ansi::red, "test ", i, " failed!!!", 
                                 "\t[", x_name, ":`", x, "` != ", "tout",":`", y,"`]", ansi::blue, 
                                 ansi::bg_black, "\t\tIt(", test::test_name, ")" , ansi::reset); 
+                        
+                        // Show line-by-line or character-by-character comparison:
+                        show_git_diff(x, y);
                     } 
                     
                     this->init();
@@ -124,9 +176,12 @@
         }
 
         template <typename T, typename U>
-        void assert_eq(const T &x, const U &y, std::string x_name, std::string y_name){
+        void assert_eq(const T &_x, const U &_y, std::string x_name, std::string y_name){
             test::_tout.destroy();
             int i = test::test_idx++;
+
+            std::string x = replace_new_line(fmt::print.sprint(_x));
+            std::string y = replace_new_line(fmt::print.sprint(_y));
             
             if (test_name_count == test_name_count_old) test_name = fmt::print.sprint("test case ", i);
             else test_name_count_old++;
@@ -138,6 +193,8 @@
                 fmt::println(ansi::red, "test ", i, " failed!!!", 
                         "\t[", x_name, ":`", x, "` != ", y_name,":`", y,"`]", ansi::blue, 
                         ansi::bg_black, "\t\tIt(", test::test_name, ")" , ansi::reset); 
+                // Show line-by-line or character-by-character comparison:
+                show_git_diff(x, y);
             } 
             test::_tout.init();
         }
@@ -160,7 +217,7 @@
     }
     #define assert(b) test::assert_true((bool)b, #b)
     #define asserteq(x, y) test::assert_eq(x, y, #x, #y)
-    #define asserttout(b) test::_tout.assert_eq(b, #b)
+    #define asserttout(...) test::_tout.assert_eq(test::join_new_line(__VA_ARGS__), #__VA_ARGS__)
     #define debug(x) std::cerr << "Debugging information: " << #x << " = " << fmt::print.sprint(x) << std::endl
     #define MAKE_TESTS void test::testsFn()
     #define RUN_TESTS test::_tin.init(); test::_tout.init(); test::testsFn(); test::_tin.clear(); test::_tout.clear(); test::_tin.destroy(); test::_tout.destroy(); test::print_tests();

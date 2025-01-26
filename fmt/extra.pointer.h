@@ -11,3 +11,12 @@ struct fmt::Display<T*> {
         return result.str();
     }
 };
+template<>
+struct fmt::Display<const char*> {
+    static std::string print(const char* data) {
+        fmt::fmtout result;
+        std::string _data = data;
+        result.print(_data);
+        return result.str();
+    }
+};
