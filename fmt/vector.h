@@ -4,7 +4,7 @@
 
 namespace _vector{
     typedef struct State{
-        int depth; // curr depth
+        int depth = 0; // curr depth
     } State;
 
     State state;

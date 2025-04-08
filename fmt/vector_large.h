@@ -9,8 +9,8 @@ namespace _vector_large{
     static_assert(max_print > 1, "max_print must be greater than 1");
 
     typedef struct State{
-        int depth; // curr depth
-        int mdepth; // max depth
+        int depth = 0; // curr depth
+        int mdepth = 0; // max depth
     } State;
 
     State state;
