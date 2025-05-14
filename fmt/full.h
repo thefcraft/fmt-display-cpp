@@ -1,3 +1,6 @@
+// Copyright (c) 2025, ThefCraft
+// License: This project is licensed under the MIT License.
+
 #include "bool.h"
 // Display specializations for standard containers
 #include "vector.h"

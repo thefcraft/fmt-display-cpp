@@ -1,7 +1,11 @@
+// Copyright (c) 2025, ThefCraft
+// License: This project is licensed under the MIT License.
+
 #include "display.h"
 #include <vector> // for vector printing
 
-
+#ifndef FMT_DISPLAY_VECTOR_H
+#define FMT_DISPLAY_VECTOR_H
 namespace _vector{
     typedef struct State{
         int depth = 0; // curr depth
@@ -46,3 +50,4 @@ struct fmt::Display<std::vector<std::vector<T>>> {
         return fmt::fout.clear_str();
     }
 };
+#endif // FMT_DISPLAY_VECTOR_H

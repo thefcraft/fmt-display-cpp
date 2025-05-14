@@ -1,6 +1,10 @@
+// Copyright (c) 2025, ThefCraft
+// License: This project is licensed under the MIT License.
+
 #include "display.h"
 #include <tuple>
-
+#ifndef FMT_DISPLAY_TUPLE_H
+#define FMT_DISPLAY_TUPLE_H
 namespace _tuple{
     template <std::size_t Index = 0, typename... T>
     void print_tuple_elements(fmt::fmtout &fout, const std::tuple<T...>& data) {
@@ -23,3 +27,4 @@ struct fmt::Display<std::tuple<T...>> {
         return fmt::fout.clear_str();
     }
 };
+#endif // FMT_DISPLAY_TUPLE_H

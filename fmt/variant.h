@@ -1,5 +1,10 @@
+// Copyright (c) 2025, ThefCraft
+// License: This project is licensed under the MIT License.
+
 #include "display.h"
 #include <variant>
+#ifndef FMT_DISPLAY_VARIANT_H
+#define FMT_DISPLAY_VARIANT_H
 template<typename... Types>
 struct fmt::Display<std::variant<Types...>> {
     static std::string print(const std::variant<Types...>& var) {
@@ -8,3 +13,4 @@ struct fmt::Display<std::variant<Types...>> {
         }, var);
     }
 };
+#endif // FMT_DISPLAY_VARIANT_H

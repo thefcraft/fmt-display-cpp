@@ -1,3 +1,6 @@
+// Copyright (c) 2025, ThefCraft
+// License: This project is licensed under the MIT License.
+
 // test::assert.h
 #ifndef TEST_ASSERT_H
 #define TEST_ASSERT_H
@@ -12,7 +15,7 @@
         static std::string test_name = "";
         static int test_name_count_old = 0;
         static int test_name_count = 0;
-
+        static std::stringstream last_tin_input_buffer;
         
         std::string replace_new_line(const std::string& str) {
             std::string result = str;  // Copy the original string to a modifiable variable
@@ -93,6 +96,7 @@
                 }
                 template<typename... Args>
                 void set(const Args&... args) {
+                    ((last_tin_input_buffer << args << '\n'), ...);
                     ((buffer << args << '\n'), ...);
                     // init();
                 }
@@ -128,6 +132,8 @@
                 void clear() {
                     buffer.str("");
                     buffer.clear();
+                    last_tin_input_buffer.str("");
+                    last_tin_input_buffer.clear();
                     // destroy();
                 }
 
@@ -158,6 +164,7 @@
                         
                         // Show line-by-line or character-by-character comparison:
                         show_git_diff(x, y);
+                        fmt::println(ansi::yellow, "\t\t\tfailed on input: ", last_tin_input_buffer.rdbuf(), ansi::reset);
                     } 
                     
                     this->init();
@@ -221,7 +228,9 @@
     #define debug(x) std::cerr << "Debugging information: " << #x << " = " << fmt::print.sprint(x) << std::endl
     #define MAKE_TESTS void test::testsFn()
     #define RUN_TESTS test::_tin.init(); test::_tout.init(); test::testsFn(); test::_tin.clear(); test::_tout.clear(); test::_tin.destroy(); test::_tout.destroy(); test::print_tests();
-    #define It(...) test::test_name_count++; test::test_name = #__VA_ARGS__; test::_tout.clear(); if(true)
+    #define It(...) test::test_name_count++; test::test_name = #__VA_ARGS__; test::_tin.clear(); test::_tout.clear(); if(true)
     #define tout test::_tout
     #define tin test::_tin
+    #define gettout test::replace_new_line(test::_tout.get())
+    #define gettin test::last_tin_input_buffer.str()
 #endif

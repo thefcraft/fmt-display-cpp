@@ -1,5 +1,9 @@
-#include "display.h"
+// Copyright (c) 2025, ThefCraft
+// License: This project is licensed under the MIT License.
 
+#include "display.h"
+#ifndef FMT_DISPLAY_ARRAY_H
+#define FMT_DISPLAY_ARRAY_H
 // Convenience function to print arrays
 namespace fmt{
     template<typename T>
@@ -16,3 +20,4 @@ namespace fmt{
         return result.str();
     }
 }
+#endif // FMT_DISPLAY_ARRAY_H

@@ -1,9 +1,12 @@
+// Copyright (c) 2025, ThefCraft
+// License: This project is licensed under the MIT License.
+
 // similar to numpy's printing standards
 
 #include "display.h"
 #include <vector> // for vector printing
-#include <stdexcept> // For std::runtime_error
-
+#ifndef FMT_DISPLAY_VECTOR_LARGE_H
+#define FMT_DISPLAY_VECTOR_LARGE_H
 namespace _vector_large{
     const int max_print = 6;
     static_assert(max_print > 1, "max_print must be greater than 1");
@@ -81,3 +84,4 @@ struct fmt::Display<std::vector<T>> {
         return _vector_large::fout.clear_str();
     }
 };
+#endif // FMT_DISPLAY_VECTOR_LARGE_H

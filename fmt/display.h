@@ -1,3 +1,6 @@
+// Copyright (c) 2025, ThefCraft
+// License: This project is licensed under the MIT License.
+
 // fmt::display.h
 #ifndef FMT_DISPLAY_H
 #define FMT_DISPLAY_H

@@ -1,5 +1,10 @@
+// Copyright (c) 2025, ThefCraft
+// License: This project is licensed under the MIT License.
+
 #include "display.h"
 #include <set>
+#ifndef FMT_DISPLAY_SET_H
+#define FMT_DISPLAY_SET_H
 template<typename T>
 struct fmt::Display<std::set<T>> {
     static std::string print(const std::set<T>& set) {
@@ -15,3 +20,4 @@ struct fmt::Display<std::set<T>> {
         return out.str();
     }
 };
+#endif // FMT_DISPLAY_SET_H

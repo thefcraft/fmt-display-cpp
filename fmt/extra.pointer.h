@@ -1,3 +1,7 @@
+// Copyright (c) 2025, ThefCraft
+// License: This project is licensed under the MIT License.
+
+// NOTE: DO NOT USE THIS AS THIS HAS A LOT OF BUGS
 #include "display.h"
 
 // Template for pointer

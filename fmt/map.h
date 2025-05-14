@@ -1,5 +1,10 @@
+// Copyright (c) 2025, ThefCraft
+// License: This project is licensed under the MIT License.
+
 #include "display.h"
 #include <map>
+#ifndef FMT_DISPLAY_MAP_H
+#define FMT_DISPLAY_MAP_H
 template<typename K, typename V>
 struct fmt::Display<std::map<K, V>> {
     static std::string print(const std::map<K, V>& map) {
@@ -15,3 +20,4 @@ struct fmt::Display<std::map<K, V>> {
         return out.str();
     }
 };
+#endif // FMT_DISPLAY_MAP_H
