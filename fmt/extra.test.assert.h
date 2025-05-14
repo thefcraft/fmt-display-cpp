@@ -222,8 +222,8 @@
             test::_tout.init();
         }
     }
-    #define assert(b) test::assert_true((bool)b, #b)
-    #define asserteq(x, y) test::assert_eq(x, y, #x, #y)
+    #define assert(b) test::assert_true((bool)(b), #b)
+    #define asserteq(x, y) test::assert_eq((x), (y), #x, #y)
     #define asserttout(...) test::_tout.assert_eq(test::join_new_line(__VA_ARGS__), #__VA_ARGS__)
     #define debug(x) std::cerr << "Debugging information: " << #x << " = " << fmt::print.sprint(x) << std::endl
     #define MAKE_TESTS void test::testsFn()
