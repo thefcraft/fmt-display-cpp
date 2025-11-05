@@ -1,5 +1,7 @@
 # fmt::display - A Flexible C++ Formatting and Testing Library
 
+[![Ask DeepWiki](https://devin.ai/assets/askdeepwiki.png)](https://deepwiki.com/thefcraft/fmt-display-cpp)
+
 `fmt::display` is a header-only C++ library that provides a flexible and extensible way to format and display various data types. Additionally, the library now includes a simple testing framework (`test::assert.h`) that allows for easy creation and execution of unit tests within your C++ project.
 
 ## Features
